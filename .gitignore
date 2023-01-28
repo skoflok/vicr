@@ -1,0 +1,7 @@
+composer.json
+package.json
+vendor
+bin
+.env
+.env.*
+build
