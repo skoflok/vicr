@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 )
+
+func setEnvs(c *exec.Cmd) {
+	c.Env = append(c.Env, os.Environ()...)
+}
 
 func IsInstalled() bool {
 	if _, err := exec.LookPath("git"); err != nil {
@@ -54,6 +59,7 @@ func CreateNewTag(tag, message string, out io.Writer) {
 	cmd := exec.Command("git", strings.Split(s, " ")...)
 
 	cmd.Stdout = out
+	setEnvs(cmd)
 
 	err := cmd.Run()
 	if err != nil {
@@ -62,11 +68,14 @@ func CreateNewTag(tag, message string, out io.Writer) {
 }
 
 func CreateCommit(message string, out io.Writer) {
-	s := fmt.Sprintf("commit -am \"%s\"", message)
+	//	s := fmt.Sprintf("commit -am '%s'", message)
 
-	cmd := exec.Command("git", strings.Split(s, " ")...)
+	cmd := exec.Command("git", []string{"commit", "-am", message}...)
 
 	cmd.Stdout = out
+	setEnvs(cmd)
+
+	fmt.Println(cmd.Env)
 
 	err := cmd.Run()
 	if err != nil {
@@ -81,6 +90,7 @@ func PushCurrent(out io.Writer) {
 	cmd := exec.Command("git", strings.Split(s, " ")...)
 
 	cmd.Stdout = out
+	setEnvs(cmd)
 
 	err := cmd.Run()
 	if err != nil {
@@ -99,6 +109,7 @@ func PushTag(tag, remote string, out io.Writer) {
 	cmd := exec.Command("git", strings.Split(s, " ")...)
 
 	cmd.Stdout = out
+	setEnvs(cmd)
 
 	err := cmd.Run()
 
