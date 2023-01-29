@@ -52,7 +52,6 @@ func main() {
 
 func increaseCommit() (version, message string) {
 	version = increaseVersion()
-	fmt.Println(messageFlag)
 	message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
 	commit(message)
 	return
