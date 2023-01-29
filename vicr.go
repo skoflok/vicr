@@ -11,11 +11,7 @@ import (
 	gu "github.com/skoflok/vicr/gitutils"
 )
 
-var messageFlag string
-
-func init() {
-	flag.StringVar(&messageFlag, "message", "", "Commit/tag message")
-}
+var messageFlag = flag.String("message", "", "Commit/tag message")
 
 func main() {
 
@@ -52,7 +48,7 @@ func main() {
 
 func increaseCommit() (version, message string) {
 	version = increaseVersion()
-	message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
+	message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
 	commit(message)
 	return
 }
