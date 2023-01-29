@@ -11,6 +11,8 @@ import (
 	gu "github.com/skoflok/vicr/gitutils"
 )
 
+var messageFlag = flag.String("m", "", "Commit/tag message")
+
 func main() {
 
 	var version, message string
@@ -34,14 +36,21 @@ func main() {
 	case "incr-commit":
 	case "ic":
 		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s", version)
+		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
 		commit(message)
 	case "incr-commit-tag":
 	case "ict":
 		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s", version)
+		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
 		commit(message)
 		tag(version, message)
+	case "incr-commit-tag-push":
+	case "ictp":
+		version = increaseVersion()
+		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
+		commit(message)
+		tag(version, message)
+		pushCommitAndTag(version)
 
 	default:
 		log.Fatal("Command not supported")
@@ -51,6 +60,11 @@ func main() {
 
 func commit(message string) {
 	gu.CreateCommit(message, os.Stdout)
+}
+
+func pushCommitAndTag(version string) {
+	gu.PushCurrent(os.Stdout)
+	gu.PushTag(version, "origin", os.Stdout)
 }
 
 func tag(version, message string) {
