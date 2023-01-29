@@ -1,21 +1,70 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
 
+	pu "github.com/manifoldco/promptui"
 	ex "github.com/skoflok/vicr/explorer"
 	gu "github.com/skoflok/vicr/gitutils"
 )
 
 func main() {
+
+	var version, message string
+
+	flag.Parse()
 	if gu.IsInstalled() == false {
 		log.Fatal("Please install git\n")
 	}
 
+	if flag.NArg() == 0 {
+		log.Fatal("Please specify command")
+	}
+
+	mainCmd := flag.Args()[0]
+
+	switch mainCmd {
+	case "incr":
+		increaseVersion()
+	case "i":
+		increaseVersion()
+	case "incr-commit":
+	case "ic":
+		version = increaseVersion()
+		message = fmt.Sprintf("Release: %s", version)
+		commit(message)
+	case "incr-commit-tag":
+	case "ict":
+		version = increaseVersion()
+		message = fmt.Sprintf("Release: %s", version)
+		commit(message)
+		tag(version, message)
+
+	default:
+		log.Fatal("Command not supported")
+	}
+
+}
+
+func commit(message string) {
+	gu.CreateCommit(message, os.Stdout)
+}
+
+func tag(version, message string) {
+	gu.CreateNewTag(version, message, os.Stdout)
+}
+
+func currentTag() {
+	fmt.Printf("1)%s", gu.CurrentTag())
+}
+
+func increaseVersion() string {
 	cTag := gu.CurrentTag()
 
-	fmt.Printf("Current Tag: %s\n", cTag)
+	fmt.Printf("Current Version: %s\n", cTag)
 
 	project, err := ex.NewProjectType("composer")
 
@@ -23,19 +72,43 @@ func main() {
 		log.Fatal(err)
 	}
 
-	v, err := ex.NewVersion(cTag)
+	ver, err := ex.NewVersion(cTag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	possibles := ver.PossibleIncreasesAsStrings()
+	prompt := pu.Select{
+		Label: "Choice next version:\n",
+		Items: []string{
+			fmt.Sprintf("Major) %s", possibles[0]),
+			fmt.Sprintf("Minor) %s", possibles[1]),
+			fmt.Sprintf("Patch) %s", possibles[2]),
+		},
+	}
+
+	selected, _, err := prompt.Run()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ok, err := ex.ChangeVersionInProjectFile(project, v)
+	newVer, err := ex.NewVersion(possibles[selected])
 
-	fmt.Println(ok)
-	fmt.Println(err)
-	fmt.Println(v.PossibleIncreases())
+	if err != nil {
+		log.Fatal(err)
+	}
 
-}
+	ok, err := ex.ChangeVersionInProjectFile(project, newVer)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-func currentTag() {
-	fmt.Printf("1)%s", gu.CurrentTag())
+	if ok {
+		fmt.Printf("Change Version to: %s\n", newVer)
+	} else {
+		log.Fatal("Something went wrong\n")
+	}
+
+	return newVer.String()
+
 }

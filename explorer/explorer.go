@@ -2,7 +2,6 @@ package explorer
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -26,6 +25,8 @@ func ChangeVersionInProjectFile(p *projectType, v *version) (ok bool, err error)
 	if err != nil {
 		return false, err
 	}
+
+	fInfo, _ := os.Lstat(fp)
 
 	type Schema struct {
 		Version string `json:"version"`
@@ -51,10 +52,6 @@ func ChangeVersionInProjectFile(p *projectType, v *version) (ok bool, err error)
 
 	newContent := re.ReplaceAllString(string(b), fVer)
 
-	//fmt.Println(schema)
-
-	fmt.Println(newContent)
-
+	os.WriteFile(fp, []byte(newContent), fInfo.Mode().Perm())
 	return true, nil
-
 }

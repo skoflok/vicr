@@ -70,6 +70,16 @@ func (v *version) PossibleIncreases() []*version {
 
 }
 
+func (v *version) PossibleIncreasesAsStrings() []string {
+	s := []string{}
+
+	for _, v := range v.PossibleIncreases() {
+		s = append(s, v.String())
+	}
+
+	return s
+}
+
 func NewProjectType(manager string) (p *projectType, err error) {
 	if ptype, ok := typeDictionary[manager]; ok == true {
 		return ptype, nil

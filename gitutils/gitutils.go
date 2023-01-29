@@ -1,6 +1,7 @@
 package gitutils
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os/exec"
@@ -42,4 +43,66 @@ func CurrentTag() string {
 	}
 
 	return strings.TrimSpace(string(out))
+}
+
+func CreateNewTag(tag, message string, out io.Writer) {
+	if message == "" {
+		message = tag
+	}
+	s := fmt.Sprintf("tag -a %s -m \"%s\"", tag, message)
+
+	cmd := exec.Command("git", strings.Split(s, " ")...)
+
+	cmd.Stdout = out
+
+	err := cmd.Run()
+	if err != nil {
+		log.Fatalf("Error running command tag create 'git tag args...' : %v", err)
+	}
+}
+
+func CreateCommit(message string, out io.Writer) {
+	s := fmt.Sprintf("commit -am \"%s\"", message)
+
+	cmd := exec.Command("git", strings.Split(s, " ")...)
+
+	cmd.Stdout = out
+
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("%s\n", cmd.String())
+		log.Fatalf("Error running commit create 'git commit args...' : %v", err)
+	}
+}
+
+func PushCurrent(out io.Writer) {
+	s := fmt.Sprintf("push")
+
+	cmd := exec.Command("git", strings.Split(s, " ")...)
+
+	cmd.Stdout = out
+
+	err := cmd.Run()
+	if err != nil {
+		log.Fatalf("Error running push 'git push' : %v", err)
+	}
+
+}
+
+func PushTag(tag, remote string, out io.Writer) {
+	if remote == "" {
+		remote = "origin"
+	}
+
+	s := fmt.Sprintf("push %s %s", remote, tag)
+
+	cmd := exec.Command("git", strings.Split(s, " ")...)
+
+	cmd.Stdout = out
+
+	err := cmd.Run()
+
+	if err != nil {
+		log.Fatalf("Error running command push new tag 'git push args...' : %v", err)
+	}
 }

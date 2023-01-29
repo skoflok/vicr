@@ -6,3 +6,4 @@ bin
 .env.*
 build
 *.swp
+vicr
