@@ -15,8 +15,6 @@ var messageFlag = flag.String("m", "", "Commit/tag message")
 
 func main() {
 
-	var version, message string
-
 	flag.Parse()
 	if gu.IsInstalled() == false {
 		log.Fatal("Please install git\n")
@@ -35,27 +33,36 @@ func main() {
 		increaseVersion()
 	case "incr-commit":
 	case "ic":
-		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
-		commit(message)
+		increaseCommit()
 	case "incr-commit-tag":
 	case "ict":
-		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
-		commit(message)
-		tag(version, message)
+		increaseCommitTag()
 	case "incr-commit-tag-push":
 	case "ictp":
-		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
-		commit(message)
-		tag(version, message)
-		pushCommitAndTag(version)
-
+		increaseCommitTagPush()
 	default:
 		log.Fatal("Command not supported")
 	}
 
+}
+
+func increaseCommit() (version, message string) {
+	version = increaseVersion()
+	message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
+	commit(message)
+	return
+}
+
+func increaseCommitTag() (version, message string) {
+	version, message = increaseCommit()
+	tag(version, message)
+	return
+}
+
+func increaseCommitTagPush() (version, message string) {
+	version, message = increaseCommitTag()
+	pushCommitAndTag(version)
+	return
 }
 
 func commit(message string) {
