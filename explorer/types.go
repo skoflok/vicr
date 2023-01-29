@@ -7,20 +7,20 @@ import (
 	"strings"
 )
 
-type project struct {
-	lang        string
-	packageFile string
-}
-
 type version struct {
-	ver                 string
 	major, minor, patch int
 }
 
-var typeDictionary = map[string]string{
-	"php":        "composer.json",
-	"javascript": "package.json",
-	"js":         "package.json",
+type projectType struct {
+	manager  string
+	language string
+	file     string
+}
+
+var typeDictionary = map[string]*projectType{
+	"composer": &projectType{"composer", "php", "composer.json"},
+	//	"javascript": "package.json",
+	//	"js":         "package.json",
 }
 
 func NewVersion(ver string) (v *version, err error) {
@@ -36,8 +36,6 @@ func NewVersion(ver string) (v *version, err error) {
 	mmp = strings.Split(s, ".")
 
 	v = &version{}
-
-	v.ver = ver
 
 	if v.major, err = strconv.Atoi(mmp[0]); err != nil {
 		return nil, fmt.Errorf("Bad major number %s. Error: %v", mmp[0], BadVersion)
@@ -63,35 +61,42 @@ func (v *version) String() string {
 	return fmt.Sprintf("%d.%d.%d", v.major, v.minor, v.patch)
 }
 
-func NewProject(lang string) (p *project, err error) {
-	if pfile, ok := typeDictionary[lang]; ok == true {
-		return &project{lang, pfile}, nil
+func (v *version) PossibleIncreases() []*version {
+	return []*version{
+		&version{v.major + 1, 0, 0},
+		&version{v.major, v.minor + 1, 0},
+		&version{v.major, v.minor, v.patch + 1},
 	}
 
-	err = fmt.Errorf("Input %s. %v", lang, NotSupportedLang)
+}
+
+func NewProjectType(manager string) (p *projectType, err error) {
+	if ptype, ok := typeDictionary[manager]; ok == true {
+		return ptype, nil
+	}
+
+	err = fmt.Errorf("Input %s. %v", manager, NotSupportedManager)
 
 	return p, err
 }
 
-func (p *project) PackageFile() string {
-	return p.packageFile
+func (p *projectType) PackageFile() string {
+	return p.file
 }
 
-func (p *project) Language() string {
-	return p.lang
+func (p *projectType) Language() string {
+	return p.language
 }
-
-func (p *project) VersionFormat(v *version) (string, error) {
-	switch p.Language() {
-	case "php":
-		return fmt.Sprintf("\"version\": \"%s\"", v), nil
-	case "javascript":
-		return fmt.Sprintf("\"version\": \"%s\"", v), nil
-	case "js":
+func (p *projectType) Manager() string {
+	return p.manager
+}
+func (p *projectType) VersionFormat(v *version) (string, error) {
+	switch p.Manager() {
+	case "composer":
 		return fmt.Sprintf("\"version\": \"%s\"", v), nil
 	default:
-		return "", NotSupportedLang
+		return "", NotSupportedManager
 	}
 
-	return "", NotSupportedLang
+	return "", NotSupportedManager
 }

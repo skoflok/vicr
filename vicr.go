@@ -17,7 +17,7 @@ func main() {
 
 	fmt.Printf("Current Tag: %s\n", cTag)
 
-	project, err := ex.NewProject("php")
+	project, err := ex.NewProjectType("composer")
 
 	if err != nil {
 		log.Fatal(err)
@@ -32,6 +32,7 @@ func main() {
 
 	fmt.Println(ok)
 	fmt.Println(err)
+	fmt.Println(v.PossibleIncreases())
 
 }
 

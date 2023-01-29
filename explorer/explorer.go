@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func ChangeVersionInProjectFile(p *project, v *version) (ok bool, err error) {
+func ChangeVersionInProjectFile(p *projectType, v *version) (ok bool, err error) {
 	dir, err := os.Getwd()
 
 	if err != nil {
@@ -38,6 +38,10 @@ func ChangeVersionInProjectFile(p *project, v *version) (ok bool, err error) {
 	}
 
 	re := regexp.MustCompile(`"version":\s{0,}("v?\d+(\.\d+)?(\.\d+)?")`)
+
+	if re.MatchString(string(b)) == false {
+		return false, NodFoundVersion
+	}
 
 	fVer, err := p.VersionFormat(v)
 
