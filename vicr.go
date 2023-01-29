@@ -47,6 +47,7 @@ func main() {
 }
 
 func increaseCommit() (version, message string) {
+	flag.Parse()
 	version = increaseVersion()
 	message = fmt.Sprintf("Release: %s. %s", version, *messageFlag)
 	commit(message)
