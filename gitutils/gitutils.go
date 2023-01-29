@@ -1,17 +1,11 @@
 package gitutils
 
 import (
-	"fmt"
 	"io"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 )
-
-func setEnvs(c *exec.Cmd) {
-	c.Env = append(c.Env, os.Environ()...)
-}
 
 func IsInstalled() bool {
 	if _, err := exec.LookPath("git"); err != nil {
@@ -54,13 +48,10 @@ func CreateNewTag(tag, message string, out io.Writer) {
 	if message == "" {
 		message = tag
 	}
-	s := fmt.Sprintf("tag -a %s -m \"%s\"", tag, message)
 
-	cmd := exec.Command("git", strings.Split(s, " ")...)
+	cmd := exec.Command("git", "tag", "-a", tag, "-m", message)
 
 	cmd.Stdout = out
-	setEnvs(cmd)
-
 	err := cmd.Run()
 	if err != nil {
 		log.Fatalf("Error running command tag create 'git tag args...' : %v", err)
@@ -68,29 +59,20 @@ func CreateNewTag(tag, message string, out io.Writer) {
 }
 
 func CreateCommit(message string, out io.Writer) {
-	//	s := fmt.Sprintf("commit -am '%s'", message)
-
-	cmd := exec.Command("git", []string{"commit", "-am", message}...)
+	cmd := exec.Command("git", "commit", "-am", message)
 
 	cmd.Stdout = out
-	setEnvs(cmd)
-
-	fmt.Println(cmd.Env)
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("%s\n", cmd.String())
 		log.Fatalf("Error running commit create 'git commit args...' : %v", err)
 	}
 }
 
 func PushCurrent(out io.Writer) {
-	s := fmt.Sprintf("push")
-
-	cmd := exec.Command("git", strings.Split(s, " ")...)
+	cmd := exec.Command("git", "push")
 
 	cmd.Stdout = out
-	setEnvs(cmd)
 
 	err := cmd.Run()
 	if err != nil {
@@ -104,12 +86,9 @@ func PushTag(tag, remote string, out io.Writer) {
 		remote = "origin"
 	}
 
-	s := fmt.Sprintf("push %s %s", remote, tag)
-
-	cmd := exec.Command("git", strings.Split(s, " ")...)
+	cmd := exec.Command("git", "push", remote, tag)
 
 	cmd.Stdout = out
-	setEnvs(cmd)
 
 	err := cmd.Run()
 
