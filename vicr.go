@@ -36,18 +36,18 @@ func main() {
 	case "incr-commit":
 	case "ic":
 		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
+		message = fmt.Sprintf("Release: %s. %s", version, &messageFlag)
 		commit(message)
 	case "incr-commit-tag":
 	case "ict":
 		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
+		message = fmt.Sprintf("Release: %s. %s", version, &messageFlag)
 		commit(message)
 		tag(version, message)
 	case "incr-commit-tag-push":
 	case "ictp":
 		version = increaseVersion()
-		message = fmt.Sprintf("Release: %s. %s", version, messageFlag)
+		message = fmt.Sprintf("Release: %s. %s", version, &messageFlag)
 		commit(message)
 		tag(version, message)
 		pushCommitAndTag(version)
