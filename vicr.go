@@ -14,7 +14,7 @@ import (
 var messageFlag string
 
 func init() {
-	flag.StringVar(&messageFlag, "m", "", "Commit/tag message")
+	flag.StringVar(&messageFlag, "message", "", "Commit/tag message")
 }
 
 func main() {
